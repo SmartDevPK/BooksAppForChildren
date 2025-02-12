@@ -1,3 +1,9 @@
+
+<?php include('login.server.php'); ?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +17,7 @@
       <h1>BOOK APP FOR CHILDREN LOGIN PAGE</h1>
     </div>
 
-   <form method="post" action="login.php">
+   <form method="post" action="login.server.php">
        
        <div class="input-group">
            <label "">EMAIL</label>
@@ -20,11 +26,11 @@
 
        <div class="input-group">
           <label >PASSWORD</label>
-          <input type="number" name="password" value="password">
+          <input type="password" name="password" value="password">
        </div>
 
        <div class="input-group">
-          <button type="submit" class="btn" name="reg_user">Login</button>
+          <button type="submit" class="btn" name="login_user">Login</button>
         </div>
 
         <p>
