@@ -44,7 +44,7 @@ if (isset($_POST['login_user'])) {
                 $_SESSION['success'] = "You are now logged in";
 
                 // Redirect to a dashboard or home page
-                header('location: dashboard.php');
+                header('location: views/user_profile.php');
                 exit();
             } else {
                 array_push($errors, "Incorrect password");

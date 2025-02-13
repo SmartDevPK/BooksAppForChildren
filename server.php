@@ -46,8 +46,15 @@ if (isset($_POST['reg_user'])) {
         $errors[] = "Invalid email address.";
     } else {
         $domain = substr(strrchr($email, "@"), 1); 
-        if (!empty($domain) && checkdnsrr($domain, "MX") === false) {
-            $errors[] = "Invalid email domain.";
+        if (!empty($domain)) {
+            if (!function_exists('getmxrr')) {
+                $errors[] = "MX record validation is not supported on this server.";
+            } else {
+                $mxhosts = [];
+                if (getmxrr($domain, $mxhosts) === false) {
+                    $errors[] = "Invalid email domain.";
+                }
+            }
         }
     }
 
@@ -90,7 +97,7 @@ if (isset($_POST['reg_user'])) {
     } else {
         $_SESSION['name'] = $name;
         $_SESSION['success'] = "You are now logged in";
-        header('location: login.php');
+        header('location: logins/login.php');
         exit();
     }
 }

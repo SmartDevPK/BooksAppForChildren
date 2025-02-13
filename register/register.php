@@ -1,15 +1,10 @@
-<?php include('server.php'); ?>
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BOOK APP FOR CHILDREN</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <div class="header">
@@ -17,7 +12,7 @@
     </div>
 
     
-    <form method="post" action="register.php">
+    <form method="post" action="../server.php">
         <div class="input-group">
             <label >NAME</label>
             <input type="text" name="name" placeholder="name">

@@ -1,3 +1,39 @@
+<?php
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['email'])) {
+    header('location: login.php');
+    exit();
+}
+
+// echo "Session Email: " . $_SESSION['email']; // Debugging
+
+// Database connection
+$db = mysqli_connect('localhost', 'root', '', 'BooksAppForChildren');
+if (!$db) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
+
+// Fetch user data from the database
+$email = mysqli_real_escape_string($db, $_SESSION['email']);
+$query = "SELECT * FROM registration WHERE email='$email' LIMIT 1";
+
+$result = mysqli_query($db, $query);
+if (!$result) {
+    die("Query failed: " . mysqli_error($db)); // Debugging
+}
+
+if (mysqli_num_rows($result) > 0) {
+    $user = mysqli_fetch_assoc($result);
+    // echo "<pre>";
+    // print_r($user); // Debugging
+    // echo "</pre>";
+} else {
+    die("User not found in the database."); // Debugging
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,17 +68,11 @@
 <body>
     <div class="profile-container">
         <h2>User Profile</h2>
-        <?php if (!empty($user['profile_picture'])): ?>
-            <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" alt="Profile Picture">
-        <!-- <?php else: ?>
-            <img src="default-profile.jpg" alt="Default Profile Picture">
-        <?php endif; ?> -->
         <p><strong>Name:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
         <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
         <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($user['phone_number']); ?></p>
         <p><strong>Country:</strong> <?php echo htmlspecialchars($user['country']); ?></p>
-        <p><strong>Bio:</strong> <?php echo nl2br(htmlspecialchars($user['bio'])); ?></p>
-        <a href="edit_profile.php">Edit Profile</a> | <a href="logout.php">Logout</a>
+        <a href="edit_profile.php">Edit Profile</a> | <a href="./logins/logout.php">Logout</a>
     </div>
 </body>
 </html>
