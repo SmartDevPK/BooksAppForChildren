@@ -7,30 +7,26 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-// echo "Session Email: " . $_SESSION['email']; // Debugging
+// Display success message if set
+if (isset($_SESSION['success'])) {
+    echo "<div style='color: green; text-align: center;'>" . $_SESSION['success'] . "</div>";
+    unset($_SESSION['success']); // Clear the message after displaying it
+}
 
-// Database connection
+// Fetch user data from the database
 $db = mysqli_connect('localhost', 'root', '', 'BooksAppForChildren');
 if (!$db) {
     die("Database connection failed: " . mysqli_connect_error());
 }
 
-// Fetch user data from the database
-$email = mysqli_real_escape_string($db, $_SESSION['email']);
+$email = $_SESSION['email'];
 $query = "SELECT * FROM registration WHERE email='$email' LIMIT 1";
-
 $result = mysqli_query($db, $query);
-if (!$result) {
-    die("Query failed: " . mysqli_error($db)); // Debugging
-}
 
-if (mysqli_num_rows($result) > 0) {
+if ($result && mysqli_num_rows($result) > 0) {
     $user = mysqli_fetch_assoc($result);
-    // echo "<pre>";
-    // print_r($user); // Debugging
-    // echo "</pre>";
 } else {
-    die("User not found in the database."); // Debugging
+    die("User not found.");
 }
 ?>
 
@@ -52,13 +48,6 @@ if (mysqli_num_rows($result) > 0) {
         .profile-container h2 {
             text-align: center;
         }
-        .profile-container img {
-            display: block;
-            margin: 0 auto;
-            border-radius: 50%;
-            width: 150px;
-            height: 150px;
-        }
         .profile-container p {
             font-size: 18px;
             margin: 10px 0;
@@ -72,7 +61,7 @@ if (mysqli_num_rows($result) > 0) {
         <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
         <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($user['phone_number']); ?></p>
         <p><strong>Country:</strong> <?php echo htmlspecialchars($user['country']); ?></p>
-        <a href="edit_profile.php">Edit Profile</a> | <a href="./logins/logout.php">Logout</a>
+        <a href="edit_profile.php">Edit Profile</a> | <a href="logout.php">Logout</a>
     </div>
 </body>
 </html>
