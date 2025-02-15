@@ -102,7 +102,7 @@ if (isset($_POST['update_profile'])) {
 <body>
     <div class="edit-profile-container">
         <h2>Edit Profile</h2>
-        <form action="edit_profile.php" method="POST">
+        <form action="update_profile.php" method="POST">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required>
 

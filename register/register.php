@@ -16,17 +16,23 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     die("Failed to decode JSON response.");
 }
 
-// Extract country names
-$country_names = [];
+// Extract country names and codes
+$country_data = [];
 foreach ($countries as $country) {
-    $country_names[] = $country['name']['common']; // Get the common name of the country
+    $country_name = $country['name']['common']; // Get the common name of the country
+    $country_code = $country['cca2']; // Get the 2-letter country code (e.g., "US" for the United States)
+    $country_data[] = [
+        'name' => $country_name,
+        'code' => $country_code
+    ];
 }
 
-// Sort country names alphabetically
-sort($country_names);
+// Sort country data alphabetically by country name
+usort($country_data, function($a, $b) {
+    return strcmp($a['name'], $b['name']);
+});
 ?>
 
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -60,9 +66,11 @@ sort($country_names);
             <select name="country" required>
                 <option value="" disabled selected>Select your country</option>
                 <?php
-                // Populate the dropdown with country names
-                foreach ($country_names as $country) {
-                    echo "<option value='$country'>$country</option>";
+                // Populate the dropdown with country names and codes
+                foreach ($country_data as $country) {
+                    $country_name = $country['name'];
+                    $country_code = $country['code'];
+                    echo "<option value='$country_code'>$country_name ($country_code)</option>";
                 }
                 ?>
             </select>

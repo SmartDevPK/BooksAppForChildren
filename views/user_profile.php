@@ -7,19 +7,13 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-// Display success message if set
-if (isset($_SESSION['success'])) {
-    echo "<div style='color: green; text-align: center;'>" . $_SESSION['success'] . "</div>";
-    unset($_SESSION['success']); // Clear the message after displaying it
-}
-
 // Database connection
 $db = mysqli_connect('localhost', 'root', '', 'BooksAppForChildren');
 if (!$db) {
     die("Database connection failed: " . mysqli_connect_error());
 }
 
-// Fetch user data from the database
+// Fetch user data
 $email = $_SESSION['email'];
 $query = "SELECT * FROM registration WHERE email='$email' LIMIT 1";
 $result = mysqli_query($db, $query);
@@ -30,8 +24,8 @@ if ($result && mysqli_num_rows($result) > 0) {
     die("User not found.");
 }
 
-// Fetch free books from the database (example data)
-$free_books_query = "SELECT * FROM books WHERE type='free' LIMIT 5"; // Adjust query as needed
+// Fetch free books
+$free_books_query = "SELECT * FROM books WHERE type='free'";
 $free_books_result = mysqli_query($db, $free_books_query);
 $free_books = [];
 if ($free_books_result) {
@@ -40,8 +34,8 @@ if ($free_books_result) {
     }
 }
 
-// Fetch paid books from the database (example data)
-$paid_books_query = "SELECT * FROM books WHERE type='paid' LIMIT 5"; // Adjust query as needed
+// Fetch paid books
+$paid_books_query = "SELECT * FROM books WHERE type='paid'";
 $paid_books_result = mysqli_query($db, $paid_books_query);
 $paid_books = [];
 if ($paid_books_result) {
@@ -49,6 +43,20 @@ if ($paid_books_result) {
         $paid_books[] = $row;
     }
 }
+
+// Function to check if the user has made any successful payment
+function hasUserPaidForAnyBook($db, $user_id) {
+    $query = "SELECT payment_status FROM user_payments WHERE user_id = ? AND payment_status = 'completed' LIMIT 1";
+    $stmt = $db->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    return $result->num_rows > 0;
+}
+
+// Check if the user has paid for any book
+$has_paid_for_any_book = hasUserPaidForAnyBook($db, $user['id']);
 ?>
 
 <!DOCTYPE html>
@@ -56,114 +64,85 @@ if ($paid_books_result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <title>Paid Books</title>
     <style>
-        .profile-container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
+        .user-info {
             border: 1px solid #ccc;
-            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
             background-color: #f9f9f9;
-        }
-        .profile-container h2 {
-            text-align: center;
-        }
-        .profile-container p {
-            font-size: 18px;
-            margin: 10px 0;
-        }
-        .books-section {
-            margin-top: 30px;
-        }
-        .books-section h3 {
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-        }
-        .book-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 20px;
         }
         .book-item {
             border: 1px solid #ccc;
-            border-radius: 5px;
             padding: 10px;
-            width: calc(33.33% - 20px);
-            box-sizing: border-box;
-            text-align: center;
-        }
-        .book-item img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
-        }
-        .book-item h4 {
-            margin: 10px 0;
-        }
-        .book-item p {
-            margin: 5px 0;
-        }
-        .book-item a {
+            margin: 10px;
+            width: 200px;
             display: inline-block;
-            margin-top: 10px;
+        }
+        .btn {
+            display: inline-block;
             padding: 5px 10px;
-            background-color: #4CAF50;
+            background-color: #007bff;
             color: white;
             text-decoration: none;
             border-radius: 5px;
         }
-        .book-item a:hover {
-            background-color: #45a049;
+        .user-actions {
+            margin-top: 10px;
+        }
+        .user-actions a {
+            margin-right: 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .user-actions a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="profile-container">
-        <h2>User Profile</h2>
+    <!-- Display User Information -->
+    <div class="user-info">
+        <h2>User Information</h2>
         <p><strong>Name:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
         <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
         <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($user['phone_number']); ?></p>
-        <p><strong>Country:</strong> <?php echo htmlspecialchars($user['country']); ?></p>
-        <a href="edit_profile.php">Edit Profile</a> | <a href="../logins/logout.php">Logout</a>
+        <p><strong>Nigeria:</strong> <?php echo htmlspecialchars($user['country']); ?></p>
+        <p><strong>Account Type:</strong> <?php echo htmlspecialchars($user['account_type']); ?></p>
+        <p><strong>Payment Status:</strong> <?php echo $has_paid_for_any_book ? 'Paid' : 'Not Paid'; ?></p>
 
-        <!-- Free Books Section -->
-        <div class="books-section">
-            <h3>Free Books</h3>
-            <div class="book-list">
-                <?php if (!empty($free_books)): ?>
-                    <?php foreach ($free_books as $book): ?>
-                        <div class="book-item">
-                            <img src="<?php echo htmlspecialchars($book['cover_image']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>">
-                            <h4><?php echo htmlspecialchars($book['title']); ?></h4>
-                            <p><?php echo htmlspecialchars($book['author']); ?></p>
-                            <a href="<?php echo htmlspecialchars($book['download_link']); ?>" target="_blank">Download</a>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p>No free books available.</p>
-                <?php endif; ?>
-            </div>
+        <!-- Update Profile and Logout Links -->
+        <div class="user-actions">
+            <a href="../views/update_profile.php">Update Profile</a>
+            <a href="../logins/logout.php">Logout</a>
         </div>
+    </div>
 
-        <!-- Paid Books Section -->
-        <div class="books-section">
-            <h3>Paid Books</h3>
-            <div class="book-list">
-                <?php if (!empty($paid_books)): ?>
-                    <?php foreach ($paid_books as $book): ?>
-                        <div class="book-item">
-                            <img src="<?php echo htmlspecialchars($book['cover_image']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>">
-                            <h4><?php echo htmlspecialchars($book['title']); ?></h4>
-                            <p><?php echo htmlspecialchars($book['author']); ?></p>
-                            <a href="<?php echo htmlspecialchars($book['purchase_link']); ?>" target="_blank">Buy Now</a>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p>No paid books available.</p>
-                <?php endif; ?>
-            </div>
+    <!-- Display Paid Books -->
+    <div class="books-section">
+        <h3>Paid Books</h3>
+        <div class="book-list">
+            <?php if (!empty($paid_books)): ?>
+                <?php foreach ($paid_books as $book): ?>
+                    <div class="book-item">
+                        <img src="<?php echo htmlspecialchars($book['cover_image']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" width="100">
+                        <h4><?php echo htmlspecialchars($book['title']); ?></h4>
+                        <p><?php echo htmlspecialchars($book['author']); ?></p>
+                        <p><?php echo htmlspecialchars($book['summary']); ?></p>
+                        <?php if ($has_paid_for_any_book): ?>
+                            <!-- User has paid for at least one book, show all paid book content -->
+                            <div class="paid-book-content">
+                                <p>Book content goes here...</p>
+                            </div>
+                        <?php else: ?>
+                            <!-- User hasn't paid for any book, show payment link -->
+                            <a href="../payment.php?book_id=<?php echo $book['id']; ?>" class="btn">Pay to Access</a>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>No paid books available.</p>
+            <?php endif; ?>
         </div>
     </div>
 </body>
