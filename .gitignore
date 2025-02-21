@@ -1,0 +1,4 @@
+.env
+/paypal/
+/views/
+.payment.php

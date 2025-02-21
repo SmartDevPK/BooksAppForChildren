@@ -42,6 +42,6 @@ $stmt->execute();
 
 // Redirect back to the profile page
 $_SESSION['success'] = "Payment successful! You can now access the book.";
-header('location: ../user_profile.php');
+header('location: ../readBook.php');
 exit();
 ?>

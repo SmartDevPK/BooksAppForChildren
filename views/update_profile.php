@@ -37,6 +37,7 @@ if (isset($_POST['update_profile'])) {
     $phone_number = mysqli_real_escape_string($db, $_POST['phone_number']);
     $country = mysqli_real_escape_string($db, $_POST['country']);
 
+
     // Update the user's profile in the database
     $update_query = "UPDATE registration SET 
                      name='$name', 

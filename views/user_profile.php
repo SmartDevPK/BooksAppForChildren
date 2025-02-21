@@ -136,7 +136,7 @@ $has_paid_for_any_book = hasUserPaidForAnyBook($db, $user['id']);
                             </div>
                         <?php else: ?>
                             <!-- User hasn't paid for any book, show payment link -->
-                            <a href="../payment.php?book_id=<?php echo $book['id']; ?>" class="btn">Pay to Access</a>
+                            <a href="../views/payment.php?book_id=<?php echo $book['id']; ?>" class="btn">Pay to Access</a>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>

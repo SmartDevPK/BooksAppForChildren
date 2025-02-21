@@ -1,10 +1,16 @@
 <?php
-// payment.php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
+// Start the session
 session_start();
 
-// Check if the user is logged in
+// Redirect to login if the user is not logged in
 if (!isset($_SESSION['email'])) {
-    header('location: login.php');
+    header('Location: login.php');
     exit();
 }
 
@@ -20,7 +26,6 @@ if (!isset($_GET['book_id'])) {
 }
 $book_id = intval($_GET['book_id']);
 
-// Fetch book details
 $query = "SELECT * FROM books WHERE id = $book_id LIMIT 1";
 $result = mysqli_query($db, $query);
 if (!$result || mysqli_num_rows($result) === 0) {
@@ -28,19 +33,9 @@ if (!$result || mysqli_num_rows($result) === 0) {
 }
 $book = mysqli_fetch_assoc($result);
 
-// Handle payment processing (this is a placeholder)
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Simulate a successful payment
-    $user_id = $_SESSION['user_id']; // Ensure you store user_id in the session
-    $payment_status = 'completed';
-    $query = "INSERT INTO user_payments (user_id, book_id, payment_status) VALUES ($user_id, $book_id, '$payment_status')";
-    if (mysqli_query($db, $query)) {
-        header('location: ..views/payment.php'); // Redirect to paid books page
-        exit();
-    } else {
-        die("Payment failed: " . mysqli_error($db));
-    }
-}
+// Fetch prices from the database
+$usd_price = $book['price_usd'] ?? 10.00; // Default to $10.00 if not set
+$ngn_price = $book['price_ngn'] ?? 5000;  // Default to ₦5000 if not set
 ?>
 
 <!DOCTYPE html>
@@ -48,22 +43,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment</title>
+    <title>Payment for <?php echo htmlspecialchars($book['title']); ?></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .payment-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Payment for <?php echo htmlspecialchars($book['title']); ?></h1>
-    <p>Price: $<?php echo htmlspecialchars($book['price']); ?></p>
-    <form method="POST">
-        <label for="card_number">Card Number:</label>
-        <input type="text" id="card_number" name="card_number" required>
-        <br>
-        <label for="expiry_date">Expiry Date:</label>
-        <input type="text" id="expiry_date" name="expiry_date" required>
-        <br>
-        <label for="cvv">CVV:</label>
-        <input type="text" id="cvv" name="cvv" required>
-        <br>
-        <button type="submit">Pay Now</button>
-    </form>
+    <div class="payment-container">
+        <h1>Payment for <?php echo htmlspecialchars($book['title']); ?></h1>
+        <p>Price (USD): $10.00<?php echo htmlspecialchars($usd_price); ?></p>
+        <p>Price (NGN): ₦5000<?php echo htmlspecialchars($ngn_price); ?></p>
+
+        <!-- PayPal Button Container -->
+        <div id="paypal-button-container"></div>
+
+        <!-- Currency Selection Form -->
+        <form method="POST" action="../views/process.payment.php">
+            <input type="hidden" name="book_title" value="<?php echo htmlspecialchars($book['title']); ?>">
+            <label for="currency">Select Currency:</label>
+            <select id="currency" name="currency" required>
+                <option value="USD">USD</option>
+                <option value="NGN">NGN</option>
+            </select>
+            <br><br>
+            <button type="submit">Pay with Debit Card</button>
+        </form>
+    </div>
+
+    <!-- PayPal SDK Script -->
+    <!-- <script src="https://www.paypal.com/sdk/js?$client_id =$client_secret&currency=USD&enable-funding=card"></script> -->
+    <!-- <script>
+        // Render PayPal Button
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '<?php echo $usd_price; ?>' // Dynamic price from PHP
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    alert('Transaction completed by ' + details.payer.name.given_name);
+                    // Redirect to success page
+                    window.location.href = 'success.php';
+                });
+            },
+            onError: function(err) {
+                console.error('Payment failed:', err);
+                alert('Payment failed. Please try again.');
+            }
+        }).render('#paypal-button-container'); -->
+    </script>
 </body>
 </html>

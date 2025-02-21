@@ -1,8 +1,50 @@
 <?php
-// Process form submission (if needed)
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+session_start();
+require_once '../connect.php'; 
+
+// Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $password = $_POST["password"];
-    echo "Entered Password: " . htmlspecialchars($password);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    // Fetch user from database
+    $sql = "SELECT id, password FROM users WHERE email = ?";
+    $stmt = $con->prepare($sql);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    if ($user && password_verify($password, $user['password'])) {
+        // Login successful, store session data
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['email'] = $email;
+
+        // Check if the user has made a payment
+        $sql = "SELECT payment_id FROM purchases WHERE user_id = ? LIMIT 1";
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param("i", $user['id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $purchase = $result->fetch_assoc();
+
+        if ($purchase) {
+            // User has paid, redirect to readbook page
+            header("Location: ../paypal/readbook.php");
+            exit;
+        } else {
+            // User has not paid, redirect to profile page
+            header("Location: ../views/user_profile.php");
+            exit;
+        }
+    } else {
+        echo "<script>alert('Invalid email or password.');</script>";
+    }
 }
 ?>
 
@@ -32,7 +74,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="password" id="password" name="password" placeholder="Enter your password" required>
             <input type="checkbox" id="showPassword">
         </div>
-
 
         <div class="input-group">
             <button type="submit" class="btn" name="login_user">Login</button>
