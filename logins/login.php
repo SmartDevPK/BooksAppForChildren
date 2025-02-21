@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </p>
 
         <p>
-            <a href="forget_password.php">Forgot Password?</a>
+            <a href="../logins/forgot_password.php">Forgot Password?</a>
         </p>
         
     </form>
