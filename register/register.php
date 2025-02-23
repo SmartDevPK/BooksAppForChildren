@@ -33,61 +33,66 @@ usort($country_data, function($a, $b) {
 });
 ?>
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BOOK APP FOR CHILDREN</title>
-    <link rel="stylesheet" href="../css/style.css">
+     <link rel="stylesheet" href="../css/main.css">
+    
+       
 </head>
 <body>
-    <div class="header">
-        <h1>BOOK APP FOR CHILDREN REGISTRATION PAGE</h1>
+    <div class="container">
+        <div class="header">
+            <h1>BOOK APP FOR CHILDREN REGISTRATION PAGE</h1>
+        </div>
+
+        <form method="post" action="../server.php">
+            <div class="input-group">
+                <label>NAME</label>
+                <input type="text" name="name" placeholder="Name" required>
+            </div>
+
+            <div class="input-group">
+                <label>EMAIL</label>
+                <input type="email" name="email" placeholder="Email" required>
+            </div>
+
+            <div class="input-group">
+                <label>PHONE NUMBER</label>
+                <input type="tel" name="phone_number" placeholder="Phone Number" required>
+            </div>
+
+            <div class="input-group">
+                <label>SELECT COUNTRY:</label>
+                <select name="country" required>
+                    <option value="" disabled selected>Select your country</option>
+                    <?php
+                    // Populate the dropdown with country names and codes
+                    foreach ($country_data as $country) {
+                        $country_name = $country['name'];
+                        $country_code = $country['code'];
+                        echo "<option value='$country_code'>$country_name ($country_code)</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>PASSWORD</label>
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+
+            <div class="input-group">
+                <button type="submit" class="btn" name="reg_user">Register</button>
+            </div>
+
+            <p>
+                Already a member? <a href="../logins/login.php">Sign in</a>
+            </p>
+        </form>
     </div>
-
-    <form method="post" action="../server.php">
-        <div class="input-group">
-            <label>NAME</label>
-            <input type="text" name="name" placeholder="Name">
-        </div>
-
-        <div class="input-group">
-            <label>EMAIL</label>
-            <input type="text" name="email" placeholder="Email">
-        </div>
-
-        <div class="input-group">
-            <label>PHONE NUMBER</label>
-            <input type="number" name="phone_number" placeholder="Phone Number">
-        </div>
-
-        <div class="input-group">
-            <label>SELECT COUNTRY:</label>
-            <select name="country" required>
-                <option value="" disabled selected>Select your country</option>
-                <?php
-                // Populate the dropdown with country names and codes
-                foreach ($country_data as $country) {
-                    $country_name = $country['name'];
-                    $country_code = $country['code'];
-                    echo "<option value='$country_code'>$country_name ($country_code)</option>";
-                }
-                ?>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" name="password" placeholder="Password">
-        </div>
-
-        <div class="input-group">
-            <button type="submit" class="btn" name="reg_user">Register</button>
-        </div>
-
-        <p>
-            Already a member? <a href="../logins/login.php">Sign in</a>
-        </p>
-    </form>
 </body>
 </html>

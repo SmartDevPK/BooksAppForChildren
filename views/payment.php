@@ -4,7 +4,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 // Start the session
 session_start();
 
@@ -26,11 +25,17 @@ if (!isset($_GET['book_id'])) {
 }
 $book_id = intval($_GET['book_id']);
 
-$query = "SELECT * FROM books WHERE id = $book_id LIMIT 1";
-$result = mysqli_query($db, $query);
+// Fetch book details
+$query = "SELECT * FROM books WHERE id = ? LIMIT 1";
+$stmt = mysqli_prepare($db, $query);
+mysqli_stmt_bind_param($stmt, "i", $book_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+
 if (!$result || mysqli_num_rows($result) === 0) {
     die("Book not found.");
 }
+
 $book = mysqli_fetch_assoc($result);
 
 // Fetch prices from the database
@@ -98,51 +103,24 @@ $ngn_price = $book['price_ngn'] ?? 5000;  // Default to ₦5000 if not set
 <body>
     <div class="payment-container">
         <h1>Payment for <?php echo htmlspecialchars($book['title']); ?></h1>
-        <p>Price (USD): $10.00<?php echo htmlspecialchars($usd_price); ?></p>
-        <p>Price (NGN): ₦5000<?php echo htmlspecialchars($ngn_price); ?></p>
-
-        <!-- PayPal Button Container -->
-        <div id="paypal-button-container"></div>
+        <p>Price (USD): $<?php echo htmlspecialchars($usd_price); ?></p>
+        <p>Price (NGN): ₦<?php echo htmlspecialchars($ngn_price); ?></p>
 
         <!-- Currency Selection Form -->
-        <form method="POST" action="../views/process.payment.php">
+        <form method="POST" action="process.payment.php"> <!-- Redirects to process.payment.php -->
+            <input type="hidden" name="book_id" value="<?php echo $book_id; ?>">
             <input type="hidden" name="book_title" value="<?php echo htmlspecialchars($book['title']); ?>">
+            <input type="hidden" name="price_usd" value="<?php echo $usd_price; ?>">
+            <input type="hidden" name="price_ngn" value="<?php echo $ngn_price; ?>">
+
             <label for="currency">Select Currency:</label>
             <select id="currency" name="currency" required>
-                <option value="USD">USD</option>
-                <option value="NGN">NGN</option>
+                <option value="USD">USD ($<?php echo htmlspecialchars($usd_price); ?>)</option>
+                <option value="NGN">NGN (₦<?php echo htmlspecialchars($ngn_price); ?>)</option>
             </select>
             <br><br>
-            <button type="submit">Pay with Debit Card</button>
+            <button type="submit">Proceed to Payment</button>
         </form>
     </div>
-
-    <!-- PayPal SDK Script -->
-    <!-- <script src="https://www.paypal.com/sdk/js?$client_id =$client_secret&currency=USD&enable-funding=card"></script> -->
-    <!-- <script>
-        // Render PayPal Button
-        paypal.Buttons({
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: {
-                            value: '<?php echo $usd_price; ?>' // Dynamic price from PHP
-                        }
-                    }]
-                });
-            },
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(details) {
-                    alert('Transaction completed by ' + details.payer.name.given_name);
-                    // Redirect to success page
-                    window.location.href = 'success.php';
-                });
-            },
-            onError: function(err) {
-                console.error('Payment failed:', err);
-                alert('Payment failed. Please try again.');
-            }
-        }).render('#paypal-button-container'); -->
-    </script>
 </body>
 </html>

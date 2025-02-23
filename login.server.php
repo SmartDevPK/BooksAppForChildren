@@ -1,64 +1,69 @@
 <?php
-session_start();
+// Enable error reporting for debugging
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$errors = []; 
+// Start session at the very beginning
+session_start();
 
 // Database connection
 $db = mysqli_connect('localhost', 'root', '', 'BooksAppForChildren');
-
 if (!$db) {
-    die("Database connection failed: " . mysqli_connect_error());
+    $_SESSION['error'] = "Database connection failed.";
+    header('Location: /BooksAppForChildren/logins/login.php');
+    exit();
 }
 
 // LOGIN USER
 if (isset($_POST['login_user'])) {
-    $email = mysqli_real_escape_string($db, $_POST['email']);
-    $password = mysqli_real_escape_string($db, $_POST['password']);
-
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
     // Form validation
-    if (empty($email)) {
-        array_push($errors, "Email is required");
+    if (empty($email) || empty($password)) {
+        $_SESSION['error'] = "Email and Password are required.";
+        header('Location: /BooksAppForChildren/logins/login.php');
+        exit();
     }
-    if (empty($password)) {
-        array_push($errors, "Password is required");
+
+    // Fetch user securely using prepared statements
+    $query = "SELECT name, email, password FROM registration WHERE email = ? LIMIT 1";
+    $stmt = mysqli_prepare($db, $query);
+
+    if (!$stmt) {
+        $_SESSION['error'] = "Database query failed.";
+        header('Location: /BooksAppForChildren/logins/login.php');
+        exit();
     }
 
-    // If no errors, proceed with login
-    if (count($errors) == 0) {
-        // Fetch user from the database
-        $query = "SELECT * FROM registration WHERE email='$email' LIMIT 1";
-        $result = mysqli_query($db, $query);
+    // Bind parameters and execute
+    mysqli_stmt_bind_param($stmt, "s", $email);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-        if ($result && mysqli_num_rows($result) == 1) {
-            $user = mysqli_fetch_assoc($result);
+    if ($result && mysqli_num_rows($result) == 1) {
+        $user = mysqli_fetch_assoc($result);
 
-            // Verify password
-            if (password_verify($password, $user['password'])) {
-                // Set session variables
-                $_SESSION['name'] = $user['name'];
-                $_SESSION['email'] = $user['email'];
-                $_SESSION['success'] = "You are now logged in";
+        // Verify password
+        if (password_verify($password, $user['password'])) {
+            // Set session variables
+            $_SESSION['name'] = $user['name'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['success'] = "You are now logged in";
 
-                // Redirect to a dashboard or home page
-                header('location: views/user_profile.php');
-                exit();
-            } else {
-                array_push($errors, "Incorrect password");
-            }
+            // Redirect to user profile
+            header('Location: /BooksAppForChildren/views/user_profile.php');
+            exit();
         } else {
-            array_push($errors, "Email not found");
+            $_SESSION['error'] = "Incorrect password.";
+            header('Location: /BooksAppForChildren/logins/login.php');
+            exit();
         }
-    }
-
-    // Display errors
-    if (!empty($errors)) {
-        foreach ($errors as $error) {
-            echo $error . "<br>";
-        }
+    } else {
+        $_SESSION['error'] = "Email not found.";
+        header('Location: /BooksAppForChildren/logins/login.php');
+        exit();
     }
 }
 ?>
