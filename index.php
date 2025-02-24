@@ -37,9 +37,14 @@
         <p class="message"><?= $message; ?></p>
     <?php endif; ?>
 
-    <form action="./upload/upload.php" method="POST" enctype="multipart/form-data">
+    <form action="/BooksAppForChildren/uploads/upload.php" method="POST" enctype="multipart/form-data">
         <label for="title">Book Title:</label><br>
         <input type="text" name="title" required>
+        <br><br>
+
+
+        <label for="author">Author:</label><br>
+        <input type="text" name="author" required> <!-- Make sure this field exists -->
         <br><br>
         
         <label for="file">Choose File:</label><br>
