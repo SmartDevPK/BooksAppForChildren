@@ -22,13 +22,14 @@ if ($conn->connect_error) {
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
+    // Get form data
     $title = trim($_POST['title']);
     $author = trim($_POST['author']);
     $type = !empty($_POST['type']) ? $_POST['type'] : 'Unknown';
     $summary = !empty($_POST['summary']) ? trim($_POST['summary']) : 'No summary available';
 
-    // Upload directories
-    $uploadDir = "uploads/upload/image.jpg";
+    // Define upload directories
+    $uploadDir = "uploads/";
     $protectedDir = "protected/";
 
     // Ensure directories exist
@@ -45,8 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         $coverImageName = basename($_FILES["cover_image"]["name"]);
         $coverImagePath = $uploadDir . $coverImageName;
 
-
-
         if (!move_uploaded_file($_FILES["cover_image"]["tmp_name"], $coverImagePath)) {
             die("❌ Error: Failed to upload cover image.");
         }
@@ -56,16 +55,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 
     // Handle PDF Upload
     $bookPdfPath = "";
-    if (!empty($_FILES["book_pdf"]["name"])) {
-        $bookPdfName = basename($_FILES["book_pdf"]["name"]);
+    if (!empty($_FILES["pdf"]["name"])) {
+        $bookPdfName = basename($_FILES["pdf"]["name"]);
         $bookPdfPath = $uploadDir . $bookPdfName;
 
         // Validate File Type (Only PDF)
-        if ($_FILES["book_pdf"]["type"] !== "application/pdf") {
+        if ($_FILES["pdf"]["type"] !== "application/pdf") {
             die("❌ Error: Invalid file type. Only PDFs are allowed.");
         }
 
-        if (!move_uploaded_file($_FILES["book_pdf"]["tmp_name"], $bookPdfPath)) {
+        if (!move_uploaded_file($_FILES["pdf"]["tmp_name"], $bookPdfPath)) {
             die("❌ Error: Failed to upload book PDF.");
         }
 
@@ -84,8 +83,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     $stmt->bind_param("ssssss", $title, $author, $coverImagePath, $bookPdfPath, $type, $summary);
 
     if ($stmt->execute()) {
-        $insertId = $conn->insert_id;
-        echo "✅ Book uploaded successfully! <a href='/BooksAppForChildren/paypal/readbook.php?id=$insertId'>Read Now</a>";
+        $book_id = $conn->insert_id; // Get the inserted book ID
+        $purchase_link = "/BooksAppForChildren/paypal/readbook.php?id=$book_id";
+
+        // Update the purchase link
+        $updateStmt = $conn->prepare("UPDATE books SET purchase_link = ? WHERE id = ?");
+        $updateStmt->bind_param("si", $purchase_link, $book_id);
+        $updateStmt->execute();
+        $updateStmt->close();
+
+        echo "✅ Book uploaded successfully! <a href='$purchase_link'>Read Now</a>";
     } else {
         echo "❌ Error inserting into database: " . $stmt->error;
     }
@@ -181,7 +188,7 @@ $conn->close();
             <input type="file" name="cover_image" accept="image/*" required>
 
             <label>Upload PDF Book:</label>
-            <input type="file" name="book_pdf" accept="application/pdf" required>
+            <input type="file" name="pdf" accept="application/pdf" required>
 
             <textarea name="summary" placeholder="Enter book summary" required></textarea>
 
