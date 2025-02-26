@@ -1,7 +1,7 @@
 <?php
 
 // send_reset_link.php
-require 'connection.php';
+require 'connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_post['email'];
