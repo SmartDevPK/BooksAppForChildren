@@ -3,7 +3,7 @@ session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['email'])) {
-    header('location: login.php'); 
+    header('location: login.php');
     exit();
 }
 
@@ -25,9 +25,9 @@ $query = "SELECT * FROM registration WHERE email='$email' LIMIT 1";
 $result = mysqli_query($db, $query);
 
 if ($result && mysqli_num_rows($result) > 0) {
-    $user = mysqli_fetch_assoc($result); 
+    $user = mysqli_fetch_assoc($result);
 } else {
-    die("User not found."); 
+    die("User not found.");
 }
 
 // Handle form submission
@@ -48,7 +48,7 @@ if (isset($_POST['update_profile'])) {
 
     if ($update_result) {
         $_SESSION['success'] = "Profile updated successfully!";
-        header('location: ../views/user_profile.php'); 
+        header('location: ../views/user_profile.php');
         exit();
     } else {
         die("Update failed: " . mysqli_error($db));
@@ -58,6 +58,7 @@ if (isset($_POST['update_profile'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,14 +72,28 @@ if (isset($_POST['update_profile'])) {
             border-radius: 10px;
             background-color: #f9f9f9;
         }
+
+        .btn {
+            display: block;
+            padding: 5px;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+
         .edit-profile-container h2 {
             text-align: center;
         }
+
         .edit-profile-container label {
             display: block;
             margin: 10px 0 5px;
             font-weight: bold;
         }
+
         .edit-profile-container input[type="text"],
         .edit-profile-container input[type="email"] {
             width: 100%;
@@ -87,6 +102,7 @@ if (isset($_POST['update_profile'])) {
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
         .edit-profile-container input[type="submit"] {
             background-color: #4CAF50;
             color: white;
@@ -95,11 +111,13 @@ if (isset($_POST['update_profile'])) {
             border-radius: 5px;
             cursor: pointer;
         }
+
         .edit-profile-container input[type="submit"]:hover {
             background-color: #45a049;
         }
     </style>
 </head>
+
 <body>
     <div class="edit-profile-container">
         <h2>Edit Profile</h2>
@@ -108,16 +126,20 @@ if (isset($_POST['update_profile'])) {
             <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required>
 
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" disabled>
+            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>"
+                disabled>
 
             <label for="phone_number">Phone Number:</label>
-            <input type="text" id="phone_number" name="phone_number" value="<?php echo htmlspecialchars($user['phone_number']); ?>" required>
+            <input type="text" id="phone_number" name="phone_number"
+                value="<?php echo htmlspecialchars($user['phone_number']); ?>" required>
 
             <label for="country">Country:</label>
-            <input type="text" id="country" name="country" value="<?php echo htmlspecialchars($user['country']); ?>" required>
+            <input type="text" id="country" name="country" value="<?php echo htmlspecialchars($user['country']); ?>"
+                required>
 
             <input type="submit" name="update_profile" value="Update Profile">
         </form>
     </div>
 </body>
+
 </html>

@@ -49,6 +49,9 @@ $user_id = $user['id'];
 
 ?>
 
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -115,19 +118,56 @@ $user_id = $user['id'];
         .paid {
             background-color: #ff5733;
         }
+
+        .profile-section {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .profile-section h3 {
+            color: #007bff;
+        }
+
+        .profile-section p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h2>All Books</h2>
+        <h2>Welcome, <?php echo htmlspecialchars($user['name']); ?></h2>
+
+        <!-- User Profile Section -->
+        <div class="profile-section">
+            <h3>Your Profile</h3>
+            <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+            <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($user['phone_number']); ?></p>
+            <p><strong>Country:</strong> <?php echo htmlspecialchars($user['country']); ?></p>
+
+            <!-- Update Profile Button -->
+            <a href="update_profile.php" class="btn">Update Profile</a>
+            <a href="../logins/login.php" class="btn">Logout</a>
+
+        </div>
+
+        <hr> <!-- Divider -->
+
+    </div>
+    <div class="container">
+        <h2>All Paid Books</h2>
 
         <!-- Display Books -->
         <div class="books-section">
             <?php if (!empty($books)): ?>
                 <?php foreach ($books as $book): ?>
                     <div class="book-item">
-                        <img src="<?php echo htmlspecialchars($book['cover_image']); ?>"
+                        <img src="../uploads/<?php echo htmlspecialchars($book['cover_image']); ?>"
                             alt="<?php echo htmlspecialchars($book['title']); ?>">
                         <p class="book-title"><?php echo htmlspecialchars($book['title']); ?></p>
                         <p><strong>Author:</strong> <?php echo htmlspecialchars($book['author']); ?></p>

@@ -18,6 +18,7 @@
             /* Disable text selection */
         }
 
+
         body {
             oncontextmenu: return false;
             /* Disable right-click */
@@ -127,6 +128,7 @@
             partner for life. The strength of a family is the foundation of a thriving society.</p>
         <p class="footer">Thank you for reading.</p>
     </div>
+    <a href="/BooksAppForChildren/paypal/readbook.php" class="btn">Return To Read Book</a>
 
     <script>
         document.addEventListener('contextmenu', function (event) {
