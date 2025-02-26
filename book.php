@@ -14,6 +14,7 @@
             -ms-user-select: none;
             /* Disable text selection for Internet Explorer */
             user-select: none;
+            user-select: auto;
             /* Disable text selection */
         }
 
@@ -126,6 +127,19 @@
             partner for life. The strength of a family is the foundation of a thriving society.</p>
         <p class="footer">Thank you for reading.</p>
     </div>
+
+    <script>
+        document.addEventListener('contextmenu', function (event) {
+            let target = event.target;
+
+            // Allow right-click only on links
+            if (target.tagName !== 'A') {
+                event.preventDefault();
+            }
+        });
+
+
+    </script>
 </body>
 
 </html>

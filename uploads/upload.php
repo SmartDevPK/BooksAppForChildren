@@ -44,7 +44,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         $coverImageName = basename($_FILES["cover_image"]["name"]);
         $coverImagePath = $uploadDir . $coverImageName;
 
-        if (!move_uploaded_file($_FILES["cover_image"]["tmp_name"], $coverImagePath)) {
+        // Ensure the file is uploaded
+        if (move_uploaded_file($_FILES["cover_image"]["tmp_name"], $coverImagePath)) {
+            // ✅ Image uploaded successfully
+        } else {
             die("❌ Error: Failed to upload cover image.");
         }
     } else {
@@ -53,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 
     // Insert into database
     $stmt = $conn->prepare("INSERT INTO books (title, author, cover_image, type, summary) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssis", $title, $author, $coverImagePath, $type, $summary);
+    $stmt->bind_param("sssss", $title, $author, $coverImagePath, $type, $summary);
 
     if ($stmt->execute()) {
         echo "✅ Book uploaded successfully!";
@@ -66,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
