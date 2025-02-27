@@ -5,7 +5,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-require_once '../connect.php'; 
+require_once '../connect.php';
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -67,6 +67,7 @@ if (isset($_SESSION['error'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -179,6 +180,7 @@ if (isset($_SESSION['error'])) {
         }
     </style>
 </head>
+
 <body>
     <!-- Display error message if any -->
     <?php if (!empty($error)): ?>
@@ -186,7 +188,7 @@ if (isset($_SESSION['error'])) {
     <?php endif; ?>
 
     <form method="post" action="../login.server.php">
-        <div class="input-group">  
+        <div class="input-group">
             <label for="email">EMAIL</label>
             <input type="text" id="email" name="email" placeholder="Enter your email" required>
         </div>
@@ -218,4 +220,5 @@ if (isset($_SESSION['error'])) {
         });
     </script>
 </body>
+
 </html>

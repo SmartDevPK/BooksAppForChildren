@@ -1,5 +1,7 @@
 .env
 /paypal/
 /views/
+/logins/
+/vendor/
 .payment.php
 .book.php
